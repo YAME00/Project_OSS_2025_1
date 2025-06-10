@@ -8,7 +8,6 @@ class Calculator:
         self.root.geometry("300x400")
 
         self.expression = ""
-        self.history = []
 
         # 입력창
         self.entry = tk.Entry(root, font=("Arial", 24), justify="right")
@@ -35,17 +34,14 @@ class Calculator:
                 )
                 btn.pack(side="left", expand=True, fill="both")
 
-        self.history_label = tk.Label(root, text = "", justify="left", anchor="w", font=("Arial", 12))
-        self.history_label.pack(fill="both", padx = 10, pady = 5)
+        self.root.bind("<Key>", self.key_input)
 
     def on_click(self, char):
         if char == 'C':
             self.expression = ""
         elif char == '=':
             try:
-                result = str(eval(self.expression))
-                self.add_to_history(self.expression, result)
-                self.expression = result
+                self.expression = str(eval(self.expression))
             except Exception:
                 self.expression = "에러"
         else:
@@ -54,14 +50,12 @@ class Calculator:
         self.entry.delete(0, tk.END)
         self.entry.insert(tk.END, self.expression)
 
-    def add_to_history(self, expression, result):
-        entry = f"{expression} = {result}"
-        self.history.insert(0, entry)
+    def key_input(self, event):
+        key = event.keysym
 
-        if len(self.history) > 5:
-            self.history = self.history[:5]
-
-        self.history_label.config(text = "\n".join(self.history))
-
-
-
+        if event.char in '0123456789+-*/.':
+            self.on_click(event.char)
+        elif key == 'Return':
+            self.on_click('=')
+        elif key.upper() == 'C':
+            self.on_click('C')
